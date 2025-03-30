@@ -35,7 +35,6 @@ jobs:
       run: |
         mkdir -p /tmp/debian-package
         cd $GITHUB_WORKSPACE
-        echo "usr/sbin/epoptes-client usr/sbin/" > debian/install
         debuild -us -uc
         find .. -name "*.deb" -exec mv {} /tmp/debian-package/ \;
       shell: /usr/bin/bash -e {0}
