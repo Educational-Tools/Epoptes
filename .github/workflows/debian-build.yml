@@ -31,6 +31,12 @@ jobs:
         git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
         mv $TARBALL ..
 
+    - name: Print debian/rules
+      run: cat debian/rules
+
+    - name: Clean Build Environment
+      run: debian/rules clean
+
     - name: Zip and Build Debian Package
       run: |
         mkdir -p /tmp/debian-package
