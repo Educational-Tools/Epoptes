@@ -1,58 +1,42 @@
-name: Build Debian Package
+name: Debian Package Build
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y devscripts debhelper dh-python python3-distutils-extra
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential devscripts debhelper
+      - name: Create source tarball
+        run: |
+          cd ..
+          tar -cJf epoptes_$(dpkg-parsechangelog -S Version).orig.tar.xz --exclude=.git --transform "s,^,epoptes-$(dpkg-parsechangelog -S Version)/," epoptes
 
-    - name: Zip and Build Debian Package
-      run: |
-        mkdir -p /tmp/debian-package
-        cd $GITHUB_WORKSPACE
-        VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
-        TARBALL="epoptes_${VERSION}.orig.tar.gz"
-        git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
-        mv $TARBALL /tmp/debian-package/
-        debuild -us -uc
-        find .. -name "*.deb" -exec mv {} /tmp/debian-package/ \;
-      shell: /usr/bin/bash -e {0}
-      env:
-        pythonLocation: /opt/hostedtoolcache/Python/3.13.2/x64
-        PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib/pkgconfig
-        Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib
+      - name: Verify dependencies
+        run: dpkg-checkbuilddeps || true
 
-    - name: List Directories
-      run: |
-        ls -al /tmp/debian-package
-        ls -al $GITHUB_WORKSPACE
+      - name: Build source package
+        run: |
+          debuild -S -sa
 
-    - name: Upload Debian Package
-      uses: actions/upload-artifact@v4
-      with:
-        name: epoptes-deb
-        path: /tmp/debian-package/*.deb
-        if-no-files-found: error
-        compression-level: 6
-        overwrite: false
-        include-hidden-files: false
+      - name: Build Debian package
+        run: |
+          dpkg-buildpackage -us -uc
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-packages
+          path: ../*.{deb,tar.xz,dsc,changes}
