@@ -34,6 +34,9 @@ jobs:
     - name: Print debian/rules
       run: cat debian/rules
 
+    - name: Add execute permissions to debian/rules
+      run: chmod +x debian/rules
+
     - name: Clean Build Environment
       run: debian/rules clean
 
