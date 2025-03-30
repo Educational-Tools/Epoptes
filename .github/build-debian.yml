@@ -1,0 +1,41 @@
+name: Build Debian Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-debian:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts debhelper
+
+      - name: Compress project
+        run: |
+          tar -czf ../project.tar.gz .
+
+      - name: Build Debian package
+        run: |
+          debuild -us -uc
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-package
+          path: ../*.deb
