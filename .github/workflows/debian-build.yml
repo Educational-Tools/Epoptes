@@ -1,4 +1,4 @@
-name: Build, Lint, and Test Debian Package
+name: Build Epoptes and Epoptes-Client Debian Packages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-epoptes:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,71 +31,96 @@ jobs:
         git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
         mv $TARBALL ..
 
-    - name: Print debian/rules
-      run: cat debian/rules
-
-    - name: Add execute permissions to debian/rules
-      run: chmod +x debian/rules
-
-    - name: Clean Build Environment
-      run: debian/rules clean
-
-    - name: Zip and Build Debian Package
+    - name: Build Epoptes Debian Package
       run: |
-        mkdir -p /tmp/debian-package
-        cd $GITHUB_WORKSPACE
-        debuild -us -uc
-        find .. -name "*.deb" -exec mv {} /tmp/debian-package/ \;
-      shell: /usr/bin/bash -e {0}
-      env:
-        pythonLocation: /opt/hostedtoolcache/Python/3.13.2/x64
-        PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib/pkgconfig
-        Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
-        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib
+        mkdir -p /tmp/epoptes-deb
+        debuild -us -uc -b -p epoptes
+        find .. -name "epoptes*.deb" -exec mv {} /tmp/epoptes-deb/ \;
 
-    - name: List Directories
-      run: |
-        ls -al /tmp/debian-package
-        ls -al $GITHUB_WORKSPACE
-
-    - name: Upload Debian Package
+    - name: Upload Epoptes Debian Package
       uses: actions/upload-artifact@v4
       with:
         name: epoptes-deb
-        path: /tmp/debian-package/*.deb
+        path: /tmp/epoptes-deb/*.deb
         if-no-files-found: error
         compression-level: 6
         overwrite: false
         include-hidden-files: false
 
-    - name: Testing
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+  build-epoptes-client:
+    runs-on: ubuntu-latest
 
-    - name: Run Tests
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies
       run: |
         sudo apt-get update
-        lintian --profile debian --fail-on-warnings --fail-on-error --show-info --show-overrides --pedantic /tmp/debian-package/*.deb
-        sudo apt-get install --install-recommends -y /tmp/debian-package/*.deb
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot
+        sudo apt-get build-dep ./ -y
 
-        ls -all etc/xdg/autostart/
-        ls -all usr/sbin/
-        ls -all usr/share/epoptes-client/
+    - name: Create Orig Tarball
+      run: |
+        VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
+        TARBALL="epoptes_${VERSION}.orig.tar.gz"
+        git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
+        mv $TARBALL ..
 
-        ls -all debian/ufw/epoptes etc/ufw/applications.d
-        ls -all usr/bin/
-        ls -all usr/lib/python*/*/*.egg-info
-        ls -all usr/lib/python*/*/epoptes/*/
-        ls -all usr/lib/python*/*/epoptes/
-        ls -all usr/lib/python*/*/twisted/plugins/
-        ls -all usr/share/applications/
-        ls -all usr/share/icons/
-        ls -all usr/share/locale/
-        ls -all usr/share/ltsp/plugins/ltsp-build-client/common/
-        ls -all usr/share/epoptes/
+    - name: Build Epoptes-Client Debian Package
+      run: |
+        mkdir -p /tmp/epoptes-client-deb
+        debuild -us -uc -b -p epoptes-client
+        find .. -name "epoptes-client*.deb" -exec mv {} /tmp/epoptes-client-deb/ \;
 
-        systemctl status epoptes
-        systemctl status epoptes-client
+    - name: Upload Epoptes-Client Debian Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: epoptes-client-deb
+        path: /tmp/epoptes-client-deb/*.deb
+        if-no-files-found: error
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
+
+  test-packages:
+    runs-on: ubuntu-latest
+    needs: [build-epoptes, build-epoptes-client]
+
+    steps:
+      - name: Download Epoptes Package
+        uses: actions/download-artifact@v4
+        with:
+          name: epoptes-deb
+          path: /tmp/epoptes-deb/
+
+      - name: Download Epoptes-Client Package
+        uses: actions/download-artifact@v4
+        with:
+          name: epoptes-client-deb
+          path: /tmp/epoptes-client-deb/
+
+      - name: Install and Test Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install --install-recommends -y /tmp/epoptes-deb/*.deb
+          sudo apt-get install --install-recommends -y /tmp/epoptes-client-deb/*.deb
+
+          ls -all etc/xdg/autostart/
+          ls -all usr/sbin/
+          ls -all usr/share/epoptes-client/
+
+          ls -all debian/ufw/epoptes etc/ufw/applications.d
+          ls -all usr/bin/
+          ls -all usr/lib/python*/*/*.egg-info
+          ls -all usr/lib/python*/*/epoptes/*/
+          ls -all usr/lib/python*/*/epoptes/
+          ls -all usr/lib/python*/*/twisted/plugins/
+          ls -all usr/share/applications/
+          ls -all usr/share/icons/
+          ls -all usr/share/locale/
+          ls -all usr/share/ltsp/plugins/ltsp-build-client/common/
+          ls -all usr/share/epoptes/
+
+          systemctl status epoptes
+          systemctl status epoptes-client
