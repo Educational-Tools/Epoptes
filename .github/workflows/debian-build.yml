@@ -34,7 +34,7 @@ jobs:
     - name: Build Epoptes Debian Package
       run: |
         mkdir -p /tmp/epoptes-deb
-        debuild -us -uc -b -p epoptes
+        debuild -us -uc -b
         find .. -name "epoptes*.deb" -exec mv {} /tmp/epoptes-deb/ \;
 
     - name: Upload Epoptes Debian Package
@@ -70,7 +70,7 @@ jobs:
     - name: Build Epoptes-Client Debian Package
       run: |
         mkdir -p /tmp/epoptes-client-deb
-        debuild -us -uc -b -p epoptes-client
+        debuild -us -uc -b
         find .. -name "epoptes-client*.deb" -exec mv {} /tmp/epoptes-client-deb/ \;
 
     - name: Upload Epoptes-Client Debian Package
