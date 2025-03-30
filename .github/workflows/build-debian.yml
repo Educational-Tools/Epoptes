@@ -21,7 +21,7 @@ jobs:
 
       - name: Create source tarball
         run: |
-          VERSION=$(dpkg-parsechangelog -S Version -l $GITHUB_WORKSPACE/epoptes/debian/changelog)
+          VERSION=$(dpkg-parsechangelog -S Version -l $GITHUB_WORKSPACE/debian/changelog)
           TAR_NAME="epoptes_${VERSION}.orig.tar.xz"
           tar -cJf "$GITHUB_WORKSPACE/$TAR_NAME" --exclude=.git --transform "s,^,epoptes-${VERSION}/," epoptes
 
@@ -30,13 +30,14 @@ jobs:
 
       - name: Build source package
         run: |
-          mv "$GITHUB_WORKSPACE/epoptes_*.orig.tar.xz" "$GITHUB_WORKSPACE/epoptes/"
-          cd "$GITHUB_WORKSPACE/epoptes"
+          mkdir -p "$GITHUB_WORKSPACE/tmp"
+          mv "$GITHUB_WORKSPACE/epoptes_*.orig.tar.xz" "$GITHUB_WORKSPACE/tmp/"
+          cd "$GITHUB_WORKSPACE/"
           debuild -S -sa
 
       - name: Build Debian package
         run: |
-          cd "$GITHUB_WORKSPACE/epoptes"
+          cd "$GITHUB_WORKSPACE/"
           dpkg-buildpackage -us -uc
 
       - name: Upload artifacts
