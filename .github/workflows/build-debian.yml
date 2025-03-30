@@ -4,39 +4,55 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build-debian:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y devscripts debhelper
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential devscripts debhelper
 
-      - name: Compress project
-        run: |
-          tar -czf ../project.tar.gz .
+    - name: Zip and Build Debian Package
+      run: |
+        mkdir -p /tmp/debian-package
+        cd $GITHUB_WORKSPACE
+        VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
+        TARBALL="epoptes_${VERSION}.orig.tar.gz"
+        git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
+        mv $TARBALL /tmp/debian-package/
+        debuild -us -uc
+        find .. -name "*.deb" -exec mv {} /tmp/debian-package/ \;
+      shell: /usr/bin/bash -e {0}
+      env:
+        pythonLocation: /opt/hostedtoolcache/Python/3.13.2/x64
+        PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib/pkgconfig
+        Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
+        Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
+        Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.2/x64
+        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.2/x64/lib
 
-      - name: Build Debian package
-        run: |
-          debuild -us -uc
+    - name: List Directories
+      run: |
+        ls -al /tmp/debian-package
+        ls -al $GITHUB_WORKSPACE
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: debian-package
-          path: ../*.deb
-          
+    - name: Upload Debian Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: epoptes-deb
+        path: /tmp/debian-package/*.deb
+        if-no-files-found: error
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
