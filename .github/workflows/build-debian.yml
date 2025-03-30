@@ -21,22 +21,26 @@ jobs:
 
       - name: Create source tarball
         run: |
-          VERSION=$(cd epoptes && dpkg-parsechangelog -S Version)
-          tar -cJf epoptes_${VERSION}.orig.tar.xz --exclude=.git --transform "s,^,epoptes-${VERSION}/," epoptes
+          VERSION=$(dpkg-parsechangelog -S Version -l $GITHUB_WORKSPACE/epoptes/debian/changelog)
+          TAR_NAME="epoptes_${VERSION}.orig.tar.xz"
+          tar -cJf "$GITHUB_WORKSPACE/$TAR_NAME" --exclude=.git --transform "s,^,epoptes-${VERSION}/," epoptes
 
       - name: Verify dependencies
-        run: dpkg-checkbuilddeps || true
+        run: dpkg-checkbuilddeps || (echo "Missing dependencies" && exit 1)
 
       - name: Build source package
         run: |
+          mv "$GITHUB_WORKSPACE/epoptes_*.orig.tar.xz" "$GITHUB_WORKSPACE/epoptes/"
+          cd "$GITHUB_WORKSPACE/epoptes"
           debuild -S -sa
 
       - name: Build Debian package
         run: |
+          cd "$GITHUB_WORKSPACE/epoptes"
           dpkg-buildpackage -us -uc
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: debian-packages
-          path: ../*.{deb,tar.xz,dsc,changes}
+          path: $GITHUB_WORKSPACE/*.{deb,tar.xz,dsc,*_
