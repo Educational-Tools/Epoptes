@@ -24,12 +24,15 @@ jobs:
         sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra
         sudo apt-get build-dep ./ -y
 
-    - name: Zip and Build Debian Package
+    - name: Create Orig Tarball
       run: |
         VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
         TARBALL="epoptes_${VERSION}.orig.tar.gz"
         git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
         mv $TARBALL ..
+
+    - name: Zip and Build Debian Package
+      run: |
         mkdir -p /tmp/debian-package
         cd $GITHUB_WORKSPACE
         debuild -us -uc
@@ -66,7 +69,7 @@ jobs:
     - name: Run Tests
       run: |
         sudo apt-get update
-        lintnian --profile debian --fail-on-warnings --fail-on-error --show-info --show-overrides --pedantic /tmp/debian-package/*.deb
+        lintian --profile debian --fail-on-warnings --fail-on-error --show-info --show-overrides --pedantic /tmp/debian-package/*.deb
         sudo apt-get install --install-recommends -y /tmp/debian-package/*.deb
 
         ls -all etc/xdg/autostart/
