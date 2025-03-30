@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y devscripts debhelper dh-python python3-distutils-extra
+          sudo apt install -y devscripts debhelper dh-python python3-distutils-extra build-essential
 
       - name: Create source tarball
         run: |
