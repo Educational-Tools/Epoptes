@@ -21,8 +21,8 @@ jobs:
 
       - name: Create source tarball
         run: |
-          cd ..
-          tar -cJf epoptes_$(dpkg-parsechangelog -S Version).orig.tar.xz --exclude=.git --transform "s,^,epoptes-$(dpkg-parsechangelog -S Version)/," epoptes
+          VERSION=$(cd epoptes && dpkg-parsechangelog -S Version)
+          tar -cJf epoptes_${VERSION}.orig.tar.xz --exclude=.git --transform "s,^,epoptes-${VERSION}/," epoptes
 
       - name: Verify dependencies
         run: dpkg-checkbuilddeps || true
