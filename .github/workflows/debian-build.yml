@@ -26,12 +26,12 @@ jobs:
 
     - name: Zip and Build Debian Package
       run: |
-        mkdir -p /tmp/debian-package
-        cd $GITHUB_WORKSPACE
         VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
         TARBALL="epoptes_${VERSION}.orig.tar.gz"
         git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
-        mv $TARBALL /tmp/debian-package/
+        mv $TARBALL ..
+        mkdir -p /tmp/debian-package
+        cd $GITHUB_WORKSPACE
         debuild -us -uc
         find .. -name "*.deb" -exec mv {} /tmp/debian-package/ \;
       shell: /usr/bin/bash -e {0}
@@ -87,4 +87,3 @@ jobs:
 
         systemctl status epoptes
         systemctl status epoptes-client
-        
