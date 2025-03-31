@@ -1,5 +1,5 @@
 debian/ufw/epoptes etc/ufw/applications.d
-usr/bin/
+bin/epoptes usr/bin/
 usr/lib/python*/*/*.egg-info
 usr/lib/python*/*/epoptes/*/*.py
 usr/lib/python*/*/epoptes/*.py
