@@ -71,6 +71,56 @@ jobs:
         overwrite: false
         include-hidden-files: false
 
+  build-epoptes-client:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted gettext
+        sudo apt-get build-dep ./ -y
+
+    - name: Prepare .po files with gettext
+      run: |
+        cd po
+        for po_file in *.po; do
+          lang=$(basename "$po_file" .po)
+          mkdir -p ../debian/tmp/usr/share/locale/$lang/LC_MESSAGES
+          msgfmt -o ../debian/tmp/usr/share/locale/$lang/LC_MESSAGES/epoptes-client.mo "$po_file"
+        done
+
+    - name: Run setup.py
+      run: |
+        python3 setup.py build
+        python3 setup.py install --root=debian/tmp
+
+    - name: Create Orig Tarball
+      run: |
+        VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
+        TARBALL="epoptes-client_${VERSION}.orig.tar.gz"
+        git archive --format=tar.gz --prefix=epoptes-client/ -o $TARBALL HEAD
+        mv $TARBALL ..
+
+    - name: Build Epoptes-Client Debian Package
+      run: |
+        mkdir -p /tmp/epoptes-client-deb
+        debuild -us -uc -b
+        find .. -name "epoptes-client*.deb" -exec mv {} /tmp/epoptes-client-deb/ \;
+
+    - name: Upload Epoptes-Client Debian Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: epoptes-client-deb
+        path: /tmp/epoptes-client-deb/*.deb
+        if-no-files-found: error
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
+
   test-packages:
     runs-on: ubuntu-latest
     needs: [build-epoptes, build-epoptes-client]
