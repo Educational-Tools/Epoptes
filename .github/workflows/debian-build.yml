@@ -21,7 +21,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted python3-twisted-bin gettext
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted gettext
         sudo apt-get build-dep ./ -y
 
     - name: Build .po files
@@ -67,7 +67,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted python3-twisted-bin gettext
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted gettext
         sudo apt-get build-dep ./ -y
 
     - name: Build .po files
