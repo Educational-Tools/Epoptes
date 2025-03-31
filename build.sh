@@ -43,11 +43,11 @@ cp bin/epoptes "$DEB_TMP_DIR/usr/bin/"
 mkdir -p "$DEB_TMP_DIR/usr/lib/python3/dist-packages/twisted/plugins"
 cp twisted/plugins/epoptesd.py "$DEB_TMP_DIR/usr/lib/python3/dist-packages/twisted/plugins/"
 
-# Create the orig tarball
+# Create the orig tarball manually if not in a Git repository
 echo "Creating orig tarball..."
 VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
 TARBALL="epoptes_${VERSION}.orig.tar.gz"
-git archive --format=tar.gz --prefix=epoptes/ -o "$TARBALL" HEAD
+tar -czf "$TARBALL" --exclude=debian/tmp --transform "s,^,epoptes/," .
 
 # Build the Debian package
 echo "Building the Debian package..."
