@@ -21,8 +21,18 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted python3-twisted-bin gettext
         sudo apt-get build-dep ./ -y
+
+    - name: Build .po files
+      run: |
+        cd po
+        make
+
+    - name: Run setup.py
+      run: |
+        python3 setup.py build
+        python3 setup.py install --root=debian/tmp
 
     - name: Create Orig Tarball
       run: |
@@ -57,14 +67,24 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot
+        sudo apt-get install -y build-essential devscripts lintian dpkg-dev fakeroot python3-distutils-extra python3-setuptools python3-twisted python3-twisted-bin gettext
         sudo apt-get build-dep ./ -y
+
+    - name: Build .po files
+      run: |
+        cd po
+        make
+
+    - name: Run setup.py
+      run: |
+        python3 setup.py build
+        python3 setup.py install --root=debian/tmp
 
     - name: Create Orig Tarball
       run: |
         VERSION=$(dpkg-parsechangelog --show-field Version | sed 's/-.*//')
-        TARBALL="epoptes_${VERSION}.orig.tar.gz"
-        git archive --format=tar.gz --prefix=epoptes/ -o $TARBALL HEAD
+        TARBALL="epoptes-client_${VERSION}.orig.tar.gz"
+        git archive --format=tar.gz --prefix=epoptes-client/ -o $TARBALL HEAD
         mv $TARBALL ..
 
     - name: Build Epoptes-Client Debian Package
