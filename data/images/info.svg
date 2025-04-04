@@ -24,13 +24,13 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="17.824983"
      inkscape:cx="11.753167"
-     inkscape:cy="19.635362"
+     inkscape:cy="19.607312"
      inkscape:window-width="1272"
-     inkscape:window-height="1377"
+     inkscape:window-height="1080"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2463" /><defs
+     inkscape:current-layer="g3" /><defs
      id="defs2465"><linearGradient
        id="linearGradient8838"><stop
          id="stop8840"
@@ -110,7 +110,8 @@
        rx="10"
        ry="10"
        transform="matrix(0,-1,-1,0,0,0)"
-       id="rect1" /><g
+       id="rect1"
+       style="fill:#0090ef;fill-opacity:1" /><g
        opacity="0.2"
        transform="matrix(1,0,0,-1,-534,-335.5)"
        id="g1"><path

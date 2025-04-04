@@ -84,7 +84,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="16"
      inkscape:cx="24.75"
-     inkscape:cy="17.8125"
+     inkscape:cy="17.78125"
      inkscape:current-layer="svg3304"
      showgrid="false"
      inkscape:grid-bbox="true"
@@ -92,7 +92,7 @@
      inkscape:showpageshadow="false"
      showborder="false"
      inkscape:window-width="1595"
-     inkscape:window-height="1413"
+     inkscape:window-height="1080"
      inkscape:window-x="0"
      inkscape:window-y="0"
      showguides="false"
@@ -158,7 +158,7 @@ Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:contributor><
        style="fill:#595959"
        d="m 2,17 v 1 c 0,0.554 0.446,1 1,1 h 18 c 0.554,0 1,-0.446 1,-1 v -1 z"
        id="path3" /><path
-       style="fill:#07a0b5;fill-opacity:1"
+       style="fill:#0090ef;fill-opacity:1"
        d="M 3,3 C 2.446,3 2,3.446 2,4 V 17 H 22 V 4 C 22,3.446 21.554,3 21,3 Z"
        id="path4" /><rect
        style="opacity:0.1;fill:#ffffff"
@@ -182,7 +182,7 @@ Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:contributor><
        y="22.542742"
        style="fill:#032d34;fill-opacity:1;stroke-width:1.1771">fat</tspan></text><text
      xml:space="preserve"
-     style="font-size:13.5591px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#07a0b5;fill-opacity:1;fill-rule:evenodd;stroke-width:1.1771;stroke-linecap:round;paint-order:fill markers stroke"
+     style="font-size:13.5591px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;opacity:1;fill:#4cb8ff;fill-opacity:1;fill-rule:evenodd;stroke-width:1.1771;stroke-linecap:round;paint-order:fill markers stroke"
      x="15.126614"
      y="22.042742"
      id="text1"><tspan
@@ -190,4 +190,4 @@ Luca Ferretti &lt;elle.uca@libero.it&gt;</dc:title></cc:Agent></dc:contributor><
        id="tspan1"
        x="15.126614"
        y="22.042742"
-       style="fill:#2cc8ee;fill-opacity:1;stroke-width:1.1771">fat</tspan></text></svg>
+       style="fill:#4cb8ff;fill-opacity:1;stroke-width:1.1771">fat</tspan></text></svg>
